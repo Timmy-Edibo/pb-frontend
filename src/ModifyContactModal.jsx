@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
+
 
 const ModifyContactModal = ({action, setShowContactModal, contact, getAllContacts}) => {
     const [ selectedContact, setSelectedContact ] = useState(
@@ -10,25 +11,45 @@ const ModifyContactModal = ({action, setShowContactModal, contact, getAllContact
           phone_number: '',
         }
     );
+    const [err, seterr] = useState('');
+
 
     const createContact = (contact) => {
+        if (contact.phone_number.length !== 10) {
+          seterr("Phone number must be 10 digits");
+          return;
+        } else {
+          seterr("");
+        }
+
+        if (contact.firstname.length < 3) {
+            seterr("First name must be at least 3 characters");
+            return;
+          }
+        
+          if (contact.lastname.length < 3) {
+            seterr("Last name must be at least 3 characters");
+            return;
+          }
+      
         setShowContactModal(false);
+      
         console.log('Started creating contact');
-        fetch(`https://phonebook-backend-production-a67d.up.railway.app/api/v1/phonebook/create`,
-            {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(contact)
-            }
-        )
+        fetch(`https://phonebook-backend-production-a67d.up.railway.app/api/v1/phonebook/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(contact)
+        })
           .then(response => response.json())
+        .then(data => console.log(data))
           .then(contacts => {
             getAllContacts()
           })
           .catch(err => console.log(err))
-    }
+      }
+      
 
     const editContact = (contact) => {
         setShowContactModal(false);
@@ -80,6 +101,9 @@ const ModifyContactModal = ({action, setShowContactModal, contact, getAllContact
                             name='phoneNumber' id='phoneNumber' type='number' placeholder='Type here...'
                         />
                     </div>
+                    {err && <p className="text-red-500">{err}</p>}
+
+
                     <div className='flex justify-center gap-6 pt-6'>
                         <button onClick={() => setShowContactModal(false)} type='button' className='w-full max-w-[250px] rounded-lg border p-2 text-red-500 border-red-500 hover:text-white hover:bg-red-500 font-semibold'>Cancel</button>
                         {

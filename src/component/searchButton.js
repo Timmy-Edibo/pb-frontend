@@ -1,6 +1,7 @@
 import React from 'react';
 
 function SearchButton(props) {
+  console.log(props.value)
   return (
     <div className="">
       <input

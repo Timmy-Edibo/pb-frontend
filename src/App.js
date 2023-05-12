@@ -2,67 +2,45 @@ import { useEffect, useState } from 'react';
 import './component/addContact'
 import AddButton from './component/addContact';
 import SearchButton from './component/searchButton';
-// import Contact from './component/contact';
 import { ReactComponent as PhoneBookIcon } from './assets/phonebook.svg';
 import ContactUnit from './component/ContactUnit';
 import ModifyContactModal from './ModifyContactModal';
 
 function App(props) {
   const [searchValue, setSearchValue] = useState('');
-  const [err, seterr] = useState('');
   const [contacts, setContacts] = useState([]);
 
-  function handleSearchChange(event) {
-    setSearchValue(event.target.value);
-  }
 
-  const closemodal = (e) => {
-    e.preventDefault()
-    if (contacts.phone_number.length !== 10) {
-      seterr("Phone number must be 10 digits")
-      return
-    }
-    else {
-      seterr("")
-    }
-    console.log("---->", contacts)
-    fetch('https://phonebook-backend-production-a67d.up.railway.app/api/v1/phonebook/create',
-      {
+  async function handleSearch(e) {
+    const searchInputValue = e.target.value;
+    setSearchValue(searchInputValue);
+    
+    try {
+      let url = 'https://phonebook-backend-production-a67d.up.railway.app/api/v1/phonebook/search';
+      
+      if (searchInputValue.trim() !== '') {
+        url += `?lastname=${searchInputValue}`;
+      }
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          firstname: contacts.firstName,
-          lastname: contacts.lastName,
-          phone_number: contacts.phone_number
-        })
-      })
-      .then(response => response.json())
-      .then(data => console.log(data)
-      )
-      .catch(error => console.error(error));
-    setContacts({
-      firstName: '',
-      lastName: '',
-      phone_number: '',
-    })
+        body: JSON.stringify({ lastname: searchInputValue })
+      });
+  
+      const data = await response.json();
+      setContacts(data.data);
+    } catch (error) {
+      console.error(error);
+    }
 
+    if (searchInputValue === '') {
+      getAllContacts();
+    }
   }
-
-  function handleSearch(e) {
-    setSearchValue(e.target.value);
-    fetch('https://phonebook-backend-production-a67d.up.railway.app/api/v1/phonebook/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ lastname: searchValue })
-    })
-      .then(response => response.json())
-      .then(data => setContacts(data.data))
-      .catch(error => console.error(error));
-  }
+  
 
   const [showContactModal, setShowContactModal] = useState(null);
   const [contactModalAction, setContactModalAction] = useState(null);
@@ -112,7 +90,7 @@ function App(props) {
       </div>
       <div className='w-full max-w-5xl flex flex-col divide-y-2 divide-stone-300 border-2 border-stone-300 rounded overflow-hidden'>
         {
-          // contacts.length > 0 &&
+          contacts && contacts.length > 0 &&
           contacts.map((contact, index) => (
             <ContactUnit
               key={index+1} contact={contact} setShowContactModal={setShowContactModal} getAllContacts={getAllContacts} 
