@@ -68,7 +68,7 @@ function App(props) {
         <div>
           <PhoneBookIcon />
         </div>
-        <h1 className='w-full text-2xl md:text-2xl font-bold text-stone-500 flex justify-start md:justify-center p-0 place-self-center'>Phone Book App</h1>
+        <h1 className='w-full text-4xl md:text-4xl font-bold text-stone-500 flex justify-start md:justify-center p-0 place-self-center'>Phone Book App</h1>
       </div>
 
       <div className='w-full max-w-5xl py flex items-center justify-between'>
